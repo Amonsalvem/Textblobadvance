@@ -21,7 +21,10 @@ Esta aplicación utiliza TextBlob para realizar un análisis básico de texto:
 - Extracción de palabras clave
 - Análisis de frecuencia de palabras
 """)
-
+with open ('mistery.json') as source:
+    animation=json.load(source)
+    st.lottie(animation,width =350)
+    
 # Barra lateral
 st.sidebar.title("Opciones")
 modo = st.sidebar.selectbox(

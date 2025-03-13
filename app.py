@@ -5,6 +5,7 @@ import re
 from googletrans import Translator
 from streamlit-lottie import st_lottie
 import json
+
 # Configuración de la página
 st.set_page_config(
     page_title="Analizador de Texto Simple",

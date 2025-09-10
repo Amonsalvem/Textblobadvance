@@ -3,9 +3,8 @@ import pandas as pd
 from textblob import TextBlob
 import re
 from googletrans import Translator
-from streamlit_lottie import st_lottie
 import json
-import streamlit.components.v1 as components  # <-- fallback opcional
+import streamlit.components.v1 as components  # <- para embeber lottie-web
 
 # =========================
 # CONFIGURACIÓN DE LA PÁGINA
@@ -17,7 +16,7 @@ st.set_page_config(
 )
 
 # =========================
-# ESTILOS CSS (tema oscuro + corrección Lottie)
+# ESTILOS CSS (tema oscuro elegante)
 # =========================
 st.markdown(
     """
@@ -55,56 +54,52 @@ st.markdown(
         background-color:#1E1E1E !important; color:#FFFFFF !important;
         border:1px solid #555555 !important; border-radius:6px !important;
     }
-
-    /* --- CORRECCIÓN LOTTIE --- */
-    /* Quita cualquier fondo que ponga el contenedor del componente */
-    [data-testid="stComponent"] { background: transparent !important; }
-    [data-testid="stComponent"] > iframe { background: transparent !important; }
-
-    /* Contenedor reportado por streamlit-lottie */
-    div[data-testid="stLottie"] { background: transparent !important; padding: 0 !important; }
-
-    /* Fuerza transparencia del lienzo interno (canvas o svg) */
-    div[data-testid="stLottie"] canvas,
-    div[data-testid="stLottie"] svg {
-        background: transparent !important;
-    }
     </style>
     """,
     unsafe_allow_html=True
 )
 
 # =========================
-# ANIMACIÓN LOTTIE (opción A: streamlit-lottie)
+# ANIMACIÓN LOTTIE (sin fondo blanco con lottie-web)
 # =========================
-with open("crazy.json") as source:
-    animation = json.load(source)
-    st_lottie(animation, width=350, height=350, key="anim")  # sin fondo
+with open("crazy.json", "r", encoding="utf-8") as f:
+    anim_text = json.dumps(json.load(f))
 
-# --- OPCIÓN B (fallback garantizado) ---
-# Si siguieras viendo un bloque blanco, comenta la opción A y descomenta esto:
-# with open("crazy.json") as source:
-#     anim_text = json.dumps(json.load(source))
-# components.html(
-#     f'''
-#     <div style="display:flex;justify-content:center;">
-#       <div id="lottie" style="width:350px;height:350px;"></div>
-#     </div>
-#     <script src="https://unpkg.com/lottie-web@5.12.2/build/player/lottie.min.js"></script>
-#     <script>
-#       const animData = {anim_text};
-#       lottie.loadAnimation({{
-#         container: document.getElementById('lottie'),
-#         renderer: 'svg',
-#         loop: true,
-#         autoplay: true,
-#         animationData: animData,
-#         rendererSettings: {{ preserveAspectRatio: 'xMidYMid meet', clearCanvas: true }}
-#       }});
-#     </script>
-#     ''',
-#     height=380, scrolling=False
-# )
+components.html(
+    f"""
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <style>
+          html, body {{
+            margin:0; padding:0; background:#000;     /* fondo negro dentro del iframe */
+          }}
+          #holder {{
+            width:350px; height:350px; margin:0 auto;
+            background:#000; border-radius:10px;      /* opcional */
+          }}
+        </style>
+      </head>
+      <body>
+        <div id="holder"></div>
+        <script src="https://unpkg.com/lottie-web@5.12.2/build/player/lottie.min.js"></script>
+        <script>
+          const animData = {anim_text};
+          lottie.loadAnimation({{
+            container: document.getElementById('holder'),
+            renderer: 'svg',
+            loop: true,
+            autoplay: true,
+            animationData: animData,
+            rendererSettings: {{ preserveAspectRatio: 'xMidYMid meet', clearCanvas: true }}
+          }});
+        </script>
+      </body>
+    </html>
+    """,
+    height=380,
+    scrolling=False
+)
 
 # =========================
 # TÍTULO Y DESCRIPCIÓN
@@ -170,7 +165,6 @@ def procesar_texto(texto):
 
 def crear_visualizaciones(resultados):
     col1, col2 = st.columns(2)
-
     with col1:
         st.subheader("📊 Análisis de Sentimiento y Subjetividad")
         st.write("**Sentimiento:**")
@@ -181,19 +175,16 @@ def crear_visualizaciones(resultados):
             st.error(f"📉 Negativo ({resultados['sentimiento']:.2f})")
         else:
             st.info(f"📊 Neutral ({resultados['sentimiento']:.2f})")
-
         st.write("**Subjetividad:**")
         st.progress(resultados["subjetividad"])
         if resultados["subjetividad"] > 0.5:
             st.warning(f"💭 Alta subjetividad ({resultados['subjetividad']:.2f})")
         else:
             st.info(f"📋 Baja subjetividad ({resultados['subjetividad']:.2f})")
-
     with col2:
         st.subheader("🔠 Palabras más frecuentes")
         if resultados["contador_palabras"]:
             st.bar_chart(dict(list(resultados["contador_palabras"].items())[:10]))
-
     st.subheader("📜 Texto traducido")
     with st.expander("Ver traducción completa"):
         c1, c2 = st.columns(2)
@@ -203,7 +194,6 @@ def crear_visualizaciones(resultados):
         with c2:
             st.markdown("**Traducido (Inglés):**")
             st.text(resultados["texto_traducido"])
-
     st.subheader("✂️ Frases detectadas")
     if resultados["frases"]:
         for i, f in enumerate(resultados["frases"][:10], 1):

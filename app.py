@@ -100,7 +100,7 @@ st.markdown(
 # =========================
 # ANIMACIÓN LOTTIE
 # =========================
-with open("mistery.json") as source:
+with open("crazy.json") as source:
     animation = json.load(source)
     st_lottie(animation, width=350)
 

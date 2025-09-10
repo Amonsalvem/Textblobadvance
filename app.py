@@ -92,6 +92,11 @@ st.markdown(
         border-radius: 10px;
         padding: 10px;
     }
+
+    /* Fondo real del canvas donde se dibuja la animación */
+    div[data-testid="stLottie"] canvas {
+        background-color: transparent !important; /* o #000000 si prefieres sólido */
+    }
     </style>
     """,
     unsafe_allow_html=True

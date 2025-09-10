@@ -86,9 +86,11 @@ st.markdown(
         border-radius: 6px !important;
     }
 
-    /* Tablas y textos */
-    .stDataFrame, .stText {
-        color: #FFFFFF !important;
+    /* Fondo del contenedor Lottie */
+    div[data-testid="stLottie"] {
+        background-color: #000000 !important;
+        border-radius: 10px;
+        padding: 10px;
     }
     </style>
     """,
